@@ -1,0 +1,27 @@
+# Python cache files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Local configurations
+config.json
+
+# Local databases
+*.db
+*.sqlite
+
+# Application generated files
+output/
+extracted_text/
+temp/
+scratch/
+
+# Test documents and raw employee folders (for privacy/cleanliness)
+documents/
+test_sample_docs/
+
+# IDE / System files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
