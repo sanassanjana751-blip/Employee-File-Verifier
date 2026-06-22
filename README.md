@@ -1,29 +1,53 @@
-# Employee File Verifier
+# 📋 Employee File Verifier
 
-A simple local tool for college HR: point it at a folder of employee files, and it builds a spreadsheet showing which documents each employee has (**yes** / **no**). It uses **file and folder names only** — no Google Drive, no OCR, no extra setup.
-
----
-
-## What it does
-
-1. You provide a folder path (all employee files for one batch/dept can live there).
-2. The program reads each file name (and subfolder names if files are grouped per employee).
-3. It checks these document types: Employee Code, Appointment Letter, Educational Documents, Experience Letter, Increment Letter, Aadhar Card, PAN Card, DOJ, Designation, Department, Employee Category.
-4. It writes a CSV in `output/` named after that folder, for example:
-   `Teaching_Staff_document_inventory_20260603_143022.csv`
-
-| Employee Code | Employee Name | Appointment Letter | Educational Documents | Experience Letter | Increment Letter | Aadhar Card | PAN Card | DOJ | Designation | Department | Employee Category | Missing Docs |
-|---------------|---------------|--------------------|-----------------------|-------------------|------------------|-------------|----------|-----|-------------|------------|-------------------|--------------|
-| Yes           | Aditi Sarang  | Yes                | No                    | Yes               | No               | Yes         | Yes      | No  | No          | No         | No                | Educational Documents, Increment Letter, DOJ, Designation, Department, Employee Category |
-
-Each document column shows **Yes** or **No**. The last column **Missing Docs** lists document types marked **No** (comma-separated).
+A local, lightweight tool designed for college HR departments to quickly audit employee documents. It scans folders/files, matches document types using configurable naming aliases (no OCR, no cloud access needed), and generates a simple **Yes/No** compliance spreadsheet.
 
 ---
 
-## Folder layouts supported
+## 🚀 Quick Start Guide
 
-**Option A — one folder per employee**
+Follow these simple steps to run the tool after importing the project:
 
+### 1. Prerequisites
+Ensure you have **Python 3.10+** installed on your system.
+
+### 2. Install Dependencies (For Dashboard UI)
+Open your terminal (PowerShell/CMD) and install the required visualization libraries:
+```powershell
+pip install streamlit pandas
+```
+
+### 3. Run the Project
+
+You can interact with this tool in two ways:
+
+#### Option A: Interactive Web Dashboard (Recommended)
+Start the web-based operation portal, which automatically opens in your default browser (usually at `http://localhost:8501`):
+```powershell
+streamlit run dashboard.py
+```
+*Note: If `streamlit` is not recognized, you can run:*
+```powershell
+python -m streamlit run dashboard.py
+```
+
+#### Option B: Command Line Interface (CLI)
+Run the script by directly passing the folder path of the employee documents:
+```powershell
+python main.py "C:\path\to\your\employee\folder"
+```
+Or run the script without arguments to be prompted for the folder path:
+```powershell
+python main.py
+```
+
+---
+
+## 📂 Supported Folder Layouts
+
+The tool automatically detects files using either of the following structures:
+
+### Structure 1: One folder per employee
 ```
 MyEmployees/
 ├── Aditi Sarang/
@@ -35,8 +59,7 @@ MyEmployees/
     └── pan card.pdf
 ```
 
-**Option B — all files in one folder (descriptive names)**
-
+### Structure 2: All files in a single flat folder
 ```
 MyEmployees/
 ├── Aditi Sarang - Aadhar Card.pdf
@@ -44,80 +67,38 @@ MyEmployees/
 └── Rajesh Kumar - Joining Letter.pdf
 ```
 
-Clear names like `Employee Name - Document Type.pdf` work best.
-
-**Name order does not matter** — the program finds the document type and employee name anywhere in the filename, for example:
-
-- `Aditi Sarang - Aadhar Card.pdf`
-- `Aadhar Card - Aditi Sarang.pdf`
-- `Aditi Sarang_Aadhar Card.pdf`
-- `Joining Letter | Rajesh Kumar.pdf`
+> **💡 Filename Tip:** File names are matched case-insensitively. Name order does not matter (e.g., `Aditi Sarang - Aadhar Card.pdf` and `Aadhar Card - Aditi Sarang.pdf` both work perfectly).
 
 ---
 
-## How to run
+## 📊 Sample Output Report
 
-### Option 1: Run via Command Line (CLI)
+The scanner writes a CSV report into the `output/` directory, formatted with UTF-8 with BOM for compatibility with Microsoft Excel:
 
-Run the script by passing the folder path containing the employee documents:
-
-```powershell
-cd C:\Users\Lenovo\Desktop\EmployeeOCR
-python main.py "C:\path\to\your\employee\folder"
-```
-
-Or run without arguments and paste the path when prompted:
-
-```powershell
-python main.py
-```
-
-Optional: custom output directory:
-
-```powershell
-python main.py "D:\HR\Records\2024" -o "D:\HR\Reports"
-```
-
-### Option 2: Run via Streamlit Dashboard (UI)
-
-First, make sure the dashboard dependencies are installed:
-
-```powershell
-pip install streamlit pandas
-```
-
-Then start the interactive web-based operation portal:
-
-```powershell
-streamlit run dashboard.py
-```
-
-If the `streamlit` command is not in your system path, you can also run:
-
-```powershell
-python -m streamlit run dashboard.py
-```
-
-This will automatically launch the dashboard in your default browser (usually at `http://localhost:8501`). The portal allows you to scan folders, filter compliant/non-compliant employees, analyze missing document frequencies, and inspect folders for individual employees.
-
-Open any generated CSV in Excel — it uses UTF-8 with BOM for correct Indian names.
+| Employee Code | Employee Name | Appointment Letter | Educational Documents | Aadhar Card | PAN Card | ... | Missing Docs |
+| :--- | :--- | :---: | :---: | :---: | :---: | :---: | :--- |
+| Yes | Aditi Sarang | Yes | No | Yes | Yes | ... | Educational Documents, DOJ, Department |
+| Yes | Rajesh Kumar | No | Yes | Yes | Yes | ... | Appointment Letter, Experience Letter |
 
 ---
 
-## Custom document types
+## ⚙️ Customizing Document Types & Aliases
 
-Edit `document_aliases` in `config.json`. Each key is a **column name**; the list values are **substrings** matched in file names (case-insensitive).
+You can easily adjust what documents the system looks for by editing [config.json](file:///c:/Users/Lenovo/Desktop/EmployeeOCR/config.json). 
 
+Each key represents the column name in the output spreadsheet, and the list values are the keywords (aliases) the program searches for in the filenames:
 ```json
-"Bonafide Certificate": ["bonafide", "bonafide certificate"]
+"document_aliases": {
+    "Aadhar Card": ["aadhar card", "aadhaar card", "adhar", "aadhar"],
+    "PAN Card": ["pan card", "pan"],
+    "Bonafide Certificate": ["bonafide", "bonafide certificate"]
+}
 ```
 
 ---
 
-## Requirements
-
-- Python 3.10+
-- Standard library only for the core CLI scanner (`main.py`).
-- **Dashboard UI Dependencies**: `streamlit`, `pandas` (install via `pip install streamlit pandas`).
-
-Legacy OCR, Google Drive, and SQLite modules remain in `utils/` but are not used by the active inventory tool or dashboard.
+## 🛠️ Project Structure
+* `main.py` - Core CLI scanner.
+* `dashboard.py` - Streamlit interactive dashboard UI.
+* `config.py` / `config.json` - Custom settings & document name matching criteria.
+* `output/` - Location of all generated checklist report CSVs.
